@@ -1,7 +1,7 @@
-#   Version 0.1
+#   Version 0.11
 #   By Daniel Berwick
 #   Date: 8/18/2020
-#   Changes: My very first release! I'm so proud! Just does the attributes right now, but much more to come!
+#   Changes: fixed logic error in line 66 which sometimes caused a single attribute set to be completely empty.
 
 import random
 #   The exalt-type can be expanded, and may benefit from classes/objects going forward, especially after charms are added.
@@ -63,7 +63,7 @@ attributes = [physical_attributes, social_attributes, mental_attributes]
 def attribute_allocation():
     for bank in attribute_banks[0:3]:
         x = random.randrange(0, 3)  # Selects attribute set
-        while attributes[x][0] > 2 and attributes[x][1] > 2 and attributes[x][2] > 2: #Checks if we've done this set before
+        while attributes[x][0] > 2 or attributes[x][1] > 2 or attributes[x][2] > 2: #Checks if we've done this set before
             x = random.randrange(0, 3)  # Selects attribute set
         while bank > 0:
             y = random.randrange(0, 3) # Selects discrete attribute
