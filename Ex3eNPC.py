@@ -1,12 +1,14 @@
-#   Version 0.11
+#   Ex3eNPC ver 0.20
 #   By Daniel Berwick
-#   Date: 8/18/2020
-#   Changes: fixed logic error in line 66 which sometimes caused a single attribute set to be completely empty.
+#   Date:       8/18/2020
+#   Changes:    Added simple ability generator and cleaned the readout.
+#               Bonus points have been added, but they only add to ability scores right now.
 
 import random
-#   The exalt-type can be expanded, and may benefit from classes/objects going forward, especially after charms are added.
-#   For now, I've made it a simple set of global variables for the process.
+#   The exalt-type can be expanded, and may benefit from classes/objects going forward,
+#   especially after charms are added. For now, I've made it a simple set of global variables for the process.
 def select_exalt_type():
+    global exalt_type
     global primary_attribute_bank
     global attribute_limit
     global primary_attribute_bank
@@ -15,7 +17,7 @@ def select_exalt_type():
     exalt_type = input("Is the NPC a [M]ortal, [T]errestrial exalt, or [S]olar exalt? \n")
     if exalt_type.lower() == "mortal" or exalt_type.lower() == "m":
         exalt_type = 'mortal'
-        print('Creating a puny mortal...')
+        print('Creating a mortal...')
         attribute_limit = 4
         primary_attribute_bank = 6
         secondary_attribute_bank = 4
@@ -27,13 +29,13 @@ def select_exalt_type():
         primary_attribute_bank = 8
         secondary_attribute_bank = 6
         tertiary_attribute_bank = 4
-    elif exalt_type.lower() == "sidereal": #or exalt_type.lower() == "l":
+    elif exalt_type.lower() == "sidereal":  # or exalt_type.lower() == "l":
         print('\nThe mask is perfect.\n')
         select_exalt_type()
-    elif exalt_type.lower() == "lunar": #or exalt_type.lower() == "l":
+    elif exalt_type.lower() == "lunar":     # or exalt_type.lower() == "l":
         print('\nComing soon ;)\n')
         select_exalt_type()
-    elif exalt_type.lower() == "abyssal": #or exalt_type.lower() == "a":
+    elif exalt_type.lower() == "abyssal":   # or exalt_type.lower() == "a":
         print('\nComing soon ;)\n')
         select_exalt_type()
     elif exalt_type.lower() == "solar" or exalt_type.lower() == "s":
@@ -66,18 +68,91 @@ def attribute_allocation():
         while attributes[x][0] > 2 or attributes[x][1] > 2 or attributes[x][2] > 2: #Checks if we've done this set before
             x = random.randrange(0, 3)  # Selects attribute set
         while bank > 0:
-            y = random.randrange(0, 3) # Selects discrete attribute
-            if attributes[x][y] > attribute_limit:
+            y = random.randrange(0, 3)  # Selects discrete attribute
+            if attributes[x][y] >= attribute_limit:
                 y = random.randrange(0, 3)
             else:
                 attributes[x][y] += 1
                 bank -= 1
-# Debug script used for point allocation: print('ABILITY CAP REACHED FOR ATTRIBUTE' + str(y) + ' IN GROUP' + str(x) + ' using bank ' + str(bank))
+# Debug script used for point allocation:
+# print('ABILITY CAP REACHED FOR ATTRIBUTE' + str(y) + ' IN GROUP' + str(x) + ' using bank ' + str(bank))
+
 attribute_allocation()
 
-def display_character():
-    print(" Strength: " + str(attributes[0][0]) + "        Charisma: " + str(attributes[1][0]) + "       Perception: " + str(attributes[2][0]))
-    print("Dexterity: " + str(attributes[0][1]) + "    Manipulation: " + str(attributes[1][1]) + "     Intelligence: " + str(attributes[2][1]))
-    print("  Stamina: " + str(attributes[0][2]) + "      Appearance: " + str(attributes[1][2]) + "             Wits: " + str(attributes[2][2]))
+def ability_allocation():
+    global ability_scores
+    global ability_names
+    ability_names = ["Archery", "Athletics", "Awareness",
+                     "Brawl", "Bureaucracy", "Craft",
+                     "Dodge", "Integrity", "Lore",
+                     "Martial Arts", "Medicine", "Melee",
+                     "Occult", "Performance", "Presence",
+                     "Resistance", "Ride", "Sail",
+                     "Socialize", "Stealth", "Survival",
+                     "Thrown", "War"]
+    ability_scores = []
+    while ability_scores.count(0 and 1 and 2 and 3 and 4 and 5) < 25:
+        ability_scores.append(0)
+    ability_bank = 28
+    while ability_bank > 0:
+        x = random.randrange(1, 25)
+        if ability_scores[x] < 3:    #Ability softcap without bonus points
+            ability_scores[x] +=1
+            ability_bank -=1
 
-display_character()
+
+
+ability_allocation()
+
+def bonus_allocation(exalt_type, ability_scores):
+    if exalt_type == 'mortal':
+        bonus_bank = 21
+    elif exalt_type == "terrestrial":
+        bonus_bank = 18
+    elif exalt_type == "solar":
+        bonus_bank = 15
+    else:
+        return 0
+    if ability_scores[10] > 1 and ability_scores[4] < 1:    # Assigns 1 point to Brawl if necessary for Martial Arts
+        ability_scores[4] += 1
+        bonus_bank -= 1
+    while bonus_bank > 0:
+        x = random.randrange(1, 25)
+        if ability_scores[x] < 5:  # Ability softcap without bonus points
+            ability_scores[x] += 1
+            bonus_bank -= 1
+
+
+bonus_allocation(exalt_type, ability_scores)
+
+def finalize_character(ability_scores, ability_names):
+    global abilities
+    abilities = zip(ability_scores, ability_names)
+    choice = input("Sort abilities by [S]core or [A]lphabetically? \n")
+    if choice.lower() == "score" or choice.lower() == "s":
+        abilities = list(abilities)
+        abilities.sort(reverse=True)
+        print("")
+
+
+finalize_character(ability_scores, ability_names)
+
+def display_character(exalt_type):
+    print("Name: ")
+    if exalt_type == 'terrestrial':
+        print('Aspect: ')
+    elif exalt_type == 'solar':
+        print("Caste: ")
+    print("___________________________________________________")
+    print(" Strength: " + str(attributes[0][0]) + "        Charisma: " + str(attributes[1][0]) +
+          "       Perception: " + str(attributes[2][0]))
+    print("Dexterity: " + str(attributes[0][1]) + "    Manipulation: " + str(attributes[1][1]) +
+          "     Intelligence: " + str(attributes[2][1]))
+    print("  Stamina: " + str(attributes[0][2]) + "      Appearance: " + str(attributes[1][2]) +
+          "             Wits: " + str(attributes[2][2]))
+    print("\n")
+    for item in abilities:
+        print(item)
+
+
+display_character(exalt_type)
