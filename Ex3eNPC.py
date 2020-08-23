@@ -154,5 +154,64 @@ def display_character(exalt_type):
     for item in abilities:
         print(item)
 
+def load_charms(source):
+    print("Loading Charms...")
+    import csv
+    with open(source, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+
+        for raw in csv_reader:
+            raw[1] = Charm(raw[1], raw[2], raw[3], raw[4], raw[5], raw[6], raw[7], raw[8], raw[9])
+            #Note that charms must have 9 parameters. Object initialization handles blanks that are marked with 'N/A'
+    print("Load Complete")
+
+
+load_charms("charms.csv")
+
+
+class Charm:
+    charmlist = []
+    def __init__(self, name, book, page, essence_min, ability, ability_min, *args):
+        self.name = name
+        self.charm_set = book
+        self.page = page
+        self.essence_min = essence_min
+        self.abillity = ability
+        self.ability_min = ability_min
+        self.prerequisite_charms = []
+        for prereq in args:     #applies any number of pre-req charms
+            if prereq == "N/A":    #Ignores blanks
+                continue
+            else:
+                self.prerequisite_charms.append(prereq)
+
+        Charm.charmlist.append(self)
+
+    @staticmethod
+    def generate_charms(exalt_type):
+        if exalt_type == "mortal":
+            charm_bank = 0
+            print("No charms generated due to lack of exaltation.")
+        elif exalt_type == "terrestrial" or exalt_type == "solar":
+            global character_charms
+            character_charms = []
+            print("Generating Charms...")
+            charm_bank = 15
+        while charm_bank > 0:
+            with random.choice(Charm.charmlist) as selected_charm:
+                if character_charms.count(selected_charm) == 0 and character_essence >= selected_charm.essence_min and
+                    character
+                    character_charms.append(selected_charm)
+                    charm_bank -= 1
+
+
+
+
+
+class CharmSuite(Charm):  # Charm suites refer to a practice in 2e's NPC section for clusters of synergistic charms.
+                          # Since this excellent idea hasn't been used in 3e, all suites are homebrew by definition.
+
+
+
 
 display_character(exalt_type)
